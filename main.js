@@ -53,19 +53,28 @@ function isTraversable(coordinate) {
   let grid;
   try {
     grid = board[coordinate[0]][coordinate[1]];
+
+    if (grid.checked) {
+      console.log("grid is already checked, resolving...");
+    }
   } catch (e) {
     return false;
   }
 
   if (grid === undefined) {
+    console.log("grid is undefined");
     return false;
   }
 
   if (grid.wall === true) {
+    console.log("grid is a wall");
+
     return false;
   }
 
   if (grid.checked === true) {
+    console.log("grid is successfully resolved");
+
     return false;
   }
 
@@ -74,6 +83,7 @@ function isTraversable(coordinate) {
 
 function fillBlock(block, color) {
   board[block[0]][block[1]].wall = true;
+  board[block[0]][block[1]].checked = true;
   var element = document.getElementById(block);
   $(element).css("background-color", color);
 }
@@ -144,33 +154,6 @@ function colorPath(current) {
   }
 }
 
-function getChecked() {
-  // [grid, grid, grid, grid]
-
-  // [[grid,grid], [grid,grid]]
-  // const reducer = (accumulator, currentValue) => {
-  //   let val = 0;
-  //   console.log(currentValue);
-  //   if (currentValue.checked) {
-  //     val = 1;
-  //   }
-  //   return accumulator + val;
-  // };
-  // const checkarr = board.map((grids) => grids.reduce(reducer));
-  // console.log(checkarr);
-  // const newreducer = (accumulator, currentValue) => accumulator + currentValue;
-  // return checkarr.reduce(newreducer);
-  let num = 0;
-  for (const b of board) {
-    for (const grid of b) {
-      if (grid.checked) {
-        num++;
-      }
-    }
-  }
-  return num;
-}
-
 function solve(start, end) {
   start.f = 0;
   start.g = 0;
@@ -216,7 +199,10 @@ function solve(start, end) {
     }
 
     board[current.x][current.y].checked = true;
+    console.log(`before splice ${open.length}`);
     open.splice(index, 1);
+    console.log(`after splice ${open.length}`);
+
     console.log(`spliced ${index}`);
     //check top
     if (isTraversable([current.x, current.y + 1])) {
@@ -286,64 +272,66 @@ function solve(start, end) {
       open.push(left);
     }
 
-    // check top right
-    if (isTraversable([current.x + 1, current.y - 1])) {
-      let topright = board[current.x + 1][current.y - 1];
-      topright.parent = current;
+    if (allowDiagonal) {
+      // check top right
+      if (isTraversable([current.x + 1, current.y - 1])) {
+        let topright = board[current.x + 1][current.y - 1];
+        topright.parent = current;
 
-      if (current.g + 14 < topright.g) {
-        topright.g = current.g + 14;
+        if (current.g + 14 < topright.g) {
+          topright.g = current.g + 14;
+        }
+        topright.h = getH(topright, end);
+
+        topright.f = topright.h + topright.g;
+
+        open.push(topright);
       }
-      topright.h = getH(topright, end);
 
-      topright.f = topright.h + topright.g;
+      // check top left
+      if (isTraversable([current.x - 1, current.y - 1])) {
+        let topleft = board[current.x - 1][current.y - 1];
+        topleft.parent = current;
 
-      open.push(topright);
-    }
+        if (current.g + 14 < topleft.g) {
+          topleft.g = current.g + 14;
+        }
+        topleft.h = getH(topleft, end);
 
-    // check top left
-    if (isTraversable([current.x - 1, current.y - 1])) {
-      let topleft = board[current.x - 1][current.y - 1];
-      topleft.parent = current;
+        topleft.f = topleft.h + topleft.g;
 
-      if (current.g + 14 < topleft.g) {
-        topleft.g = current.g + 14;
+        open.push(topleft);
       }
-      topleft.h = getH(topleft, end);
 
-      topleft.f = topleft.h + topleft.g;
+      // check bot left
+      if (isTraversable([current.x - 1, current.y + 1])) {
+        let botleft = board[current.x - 1][current.y + 1];
+        botleft.parent = current;
 
-      open.push(topleft);
-    }
+        if (current.g + 14 < botleft.g) {
+          botleft.g = current.g + 14;
+        }
+        botleft.h = getH(botleft, end);
 
-    // check bot left
-    if (isTraversable([current.x - 1, current.y + 1])) {
-      let botleft = board[current.x - 1][current.y + 1];
-      botleft.parent = current;
+        botleft.f = botleft.h + botleft.g;
 
-      if (current.g + 14 < botleft.g) {
-        botleft.g = current.g + 14;
+        open.push(botleft);
       }
-      botleft.h = getH(botleft, end);
 
-      botleft.f = botleft.h + botleft.g;
+      // check bot right
+      if (isTraversable([current.x + 1, current.y + 1])) {
+        let botright = board[current.x + 1][current.y + 1];
+        botright.parent = current;
 
-      open.push(botleft);
-    }
+        if (current.g + 14 < botright.g) {
+          botright.g = current.g + 14;
+        }
+        botright.h = getH(botright, end);
 
-    // check bot right
-    if (isTraversable([current.x + 1, current.y + 1])) {
-      let botright = board[current.x + 1][current.y + 1];
-      botright.parent = current;
+        botright.f = botright.h + botright.g;
 
-      if (current.g + 14 < botright.g) {
-        botright.g = current.g + 14;
+        open.push(botright);
       }
-      botright.h = getH(botright, end);
-
-      botright.f = botright.h + botright.g;
-
-      open.push(botright);
     }
   }
 }
@@ -353,6 +341,7 @@ function solve(start, end) {
 // allows the click of a button to prompt the user to create a new grid
 let first = true;
 let showCalc;
+let allowDiagonal;
 $(document).ready(function () {
   gridamount = prompt("How many boxes per side?");
   wallamount = prompt("How many walls in the grid");
@@ -362,11 +351,13 @@ $(document).ready(function () {
   while (wallamount > gridamount * gridamount) {
     wallamount = prompt("Invalid wall amount, please re-enter");
   }
+
+  allowDiagonal = confirm("Allow diagonal pathing?");
   // wallamount = prompt("How many walls in the grid");
   document.getElementById("gridamount").innerHTML = gridamount;
   document.getElementById("wallamount").innerHTML = wallamount;
   document.getElementById("showcalc").innerHTML = showCalc;
-
+  document.getElementById("allowdiag").innerHTML = allowDiagonal;
   createGrid(gridamount);
   100;
   generateWall(wallamount);
