@@ -28,8 +28,8 @@ class Grid {
 let board = [];
 let temp = [];
 
-const wallamount = 3000;
-const gridamount = 100;
+let wallamount = 10;
+let gridamount = 100;
 function createGrid(x) {
   for (var rows = 0; rows < x; rows++) {
     for (var columns = 0; columns < x; columns++) {
@@ -98,6 +98,11 @@ function getBestNode(list) {
   let index = 0;
   for (let i = 0; i < list.length; ++i) {
     let grid = list[i];
+
+    if (showCalc) {
+      grid.fillColor("yellow");
+    }
+
     if (grid.f <= min.f && grid.g <= min.g) {
       min = grid;
       index = i;
@@ -152,7 +157,6 @@ function solve(start, end) {
     }
     let bestNode = getBestNode(open);
     let current = bestNode.min;
-
     let index = bestNode.index;
     if (current.x === end.x && current.y === end.y) {
       console.log("PATH FOUND!");
@@ -288,9 +292,23 @@ function solve(start, end) {
 // Creates a hover effect that changes the color of a square to black when the mouse passes over it, leaving a (pixel) trail through the grid
 // allows the click of a button to prompt the user to create a new grid
 let first = true;
-
+let showCalc;
 $(document).ready(function () {
+  gridamount = prompt("How many boxes per side?");
+  wallamount = prompt("How many walls in the grid");
+
+  showCalc = confirm("Show calculated route?");
+
+  while (wallamount > gridamount * gridamount) {
+    wallamount = prompt("Invalid wall amount, please re-enter");
+  }
+  // wallamount = prompt("How many walls in the grid");
+  document.getElementById("gridamount").innerHTML = gridamount;
+  document.getElementById("wallamount").innerHTML = wallamount;
+  document.getElementById("showcalc").innerHTML = showCalc;
+
   createGrid(gridamount);
+  100;
   generateWall(wallamount);
   board[0][0].fillColor("green");
 
@@ -321,4 +339,5 @@ $(document).ready(function () {
     generateWall(wallamount);
     board[0][0].fillColor("green");
   });
+  10;
 });
