@@ -82,12 +82,14 @@ function refreshGrid() {
   var z = prompt("How many boxes per side?");
   clearGrid();
   createGrid(z);
+  1;
 }
 
 function generateWall(num) {
   for (i = 0; i < num; ++i) {
     const x = Math.floor(Math.random() * (gridamount - 1)) + 1;
     const y = Math.floor(Math.random() * (gridamount - 1)) + 1;
+    1000;
     fillBlock([x, y], "black");
   }
 }
@@ -322,7 +324,7 @@ $(document).ready(function () {
     // ensure the wall is not clicked
     if (!board[Number(arr[0])][Number(arr[1])].wall) {
       let start = new Date();
-      console.log(start);
+
       board[Number(arr[0])][Number(arr[1])].fillColor("green");
       solve(board[0][0], board[Number(arr[0])][Number(arr[1])]);
       let end = new Date() - start;
@@ -334,10 +336,32 @@ $(document).ready(function () {
 
   $(".newGrid").click(function () {
     board = [];
+    clearGrid();
     createGrid(gridamount);
-    resetBoard();
+    // resetBoard();
     generateWall(wallamount);
     board[0][0].fillColor("green");
+
+    $(".grid").click(function () {
+      resetBoard();
+      board[0][0].fillColor("green");
+
+      const element = $(this.id).selector;
+      const arr = element.split(",");
+
+      // ensure the wall is not clicked
+      if (!board[Number(arr[0])][Number(arr[1])].wall) {
+        let start = new Date();
+        console.log(start);
+        board[Number(arr[0])][Number(arr[1])].fillColor("green");
+        solve(board[0][0], board[Number(arr[0])][Number(arr[1])]);
+        let end = new Date() - start;
+        document.getElementById("elapsedTime").innerHTML =
+          end.toString() + " ms";
+      } else {
+        alert("You cannot set your end point to a wall!");
+      }
+    });
   });
   10;
 });
