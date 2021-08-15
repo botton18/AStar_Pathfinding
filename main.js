@@ -102,7 +102,7 @@ function getBestNode(list) {
     let grid = list[i];
 
     if (showCalc) {
-      grid.fillColor("yellow");
+      // grid.fillColor("yellow");
     }
 
     if (grid.f <= min.f && grid.g <= min.g) {
@@ -143,6 +143,34 @@ function colorPath(current) {
     grid = grid.parent;
   }
 }
+
+function getChecked() {
+  // [grid, grid, grid, grid]
+
+  // [[grid,grid], [grid,grid]]
+  // const reducer = (accumulator, currentValue) => {
+  //   let val = 0;
+  //   console.log(currentValue);
+  //   if (currentValue.checked) {
+  //     val = 1;
+  //   }
+  //   return accumulator + val;
+  // };
+  // const checkarr = board.map((grids) => grids.reduce(reducer));
+  // console.log(checkarr);
+  // const newreducer = (accumulator, currentValue) => accumulator + currentValue;
+  // return checkarr.reduce(newreducer);
+  let num = 0;
+  for (const b of board) {
+    for (const grid of b) {
+      if (grid.checked) {
+        num++;
+      }
+    }
+  }
+  return num;
+}
+
 function solve(start, end) {
   start.f = 0;
   start.g = 0;
@@ -150,6 +178,8 @@ function solve(start, end) {
   const open = [start];
   const closed = [];
 
+  console.log("solving");
+  let ch = 0;
   while (1) {
     if (open.length === 0) {
       alert("No Path Found!");
@@ -157,9 +187,20 @@ function solve(start, end) {
       console.log("No Path Found");
       break;
     }
+    console.log(open.length);
     let bestNode = getBestNode(open);
     let current = bestNode.min;
     let index = bestNode.index;
+
+    if (current.checked) {
+      console.log("CURRENT IS ALREADY CHECKED%%%%%%%");
+      console.log(`index is ${index}`);
+
+      console.log(current);
+      open.splice(index, 1);
+      continue;
+    }
+    console.log(current);
     if (current.x === end.x && current.y === end.y) {
       console.log("PATH FOUND!");
       colorPath(current);
@@ -167,8 +208,16 @@ function solve(start, end) {
       break;
     }
     current.checked = true;
+    ch++;
+    console.log(`Checked ${ch}`);
+    if (showCalc) {
+      // grid.fillColor("yellow");
+      current.fillColor("red");
+    }
 
+    board[current.x][current.y].checked = true;
     open.splice(index, 1);
+    console.log(`spliced ${index}`);
     //check top
     if (isTraversable([current.x, current.y + 1])) {
       let top = board[current.x][current.y + 1];
@@ -180,6 +229,9 @@ function solve(start, end) {
       top.h = getH(top, end);
       top.f = top.g + top.h;
 
+      if (top.checked) {
+        console.log("TOP IS ALREADY CHECKED!!");
+      }
       open.push(top);
     }
 
@@ -194,7 +246,9 @@ function solve(start, end) {
       bot.h = getH(bot, end);
 
       bot.f = bot.g + bot.h;
-
+      if (bot.checked) {
+        console.log("bot IS ALREADY CHECKED!!");
+      }
       open.push(bot);
     }
 
@@ -209,7 +263,9 @@ function solve(start, end) {
       right.h = getH(right, end);
 
       right.f = right.h + right.g;
-
+      if (right.checked) {
+        console.log("right IS ALREADY CHECKED!!");
+      }
       open.push(right);
     }
 
@@ -224,7 +280,9 @@ function solve(start, end) {
       left.h = getH(left, end);
 
       left.f = left.h + left.g;
-
+      if (left.checked) {
+        console.log("left IS ALREADY CHECKED!!");
+      }
       open.push(left);
     }
 
@@ -233,8 +291,8 @@ function solve(start, end) {
       let topright = board[current.x + 1][current.y - 1];
       topright.parent = current;
 
-      if (current.g + 10 < topright.g) {
-        topright.g = current.g + 10;
+      if (current.g + 14 < topright.g) {
+        topright.g = current.g + 14;
       }
       topright.h = getH(topright, end);
 
@@ -248,8 +306,8 @@ function solve(start, end) {
       let topleft = board[current.x - 1][current.y - 1];
       topleft.parent = current;
 
-      if (current.g + 10 < topleft.g) {
-        topleft.g = current.g + 10;
+      if (current.g + 14 < topleft.g) {
+        topleft.g = current.g + 14;
       }
       topleft.h = getH(topleft, end);
 
@@ -263,8 +321,8 @@ function solve(start, end) {
       let botleft = board[current.x - 1][current.y + 1];
       botleft.parent = current;
 
-      if (current.g + 10 < botleft.g) {
-        botleft.g = current.g + 10;
+      if (current.g + 14 < botleft.g) {
+        botleft.g = current.g + 14;
       }
       botleft.h = getH(botleft, end);
 
@@ -278,8 +336,8 @@ function solve(start, end) {
       let botright = board[current.x + 1][current.y + 1];
       botright.parent = current;
 
-      if (current.g + 10 < botright.g) {
-        botright.g = current.g + 10;
+      if (current.g + 14 < botright.g) {
+        botright.g = current.g + 14;
       }
       botright.h = getH(botright, end);
 
