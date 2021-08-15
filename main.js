@@ -10,7 +10,7 @@ class Grid {
     this.gridDiv.id = [x, y];
     this.gridDiv.className = "grid";
     this.wall = false;
-    this.parent;
+    this.parent = null;
     this.children;
     this.g = 0; // distance from starting point
     this.h = 0; // heuristic manahttan distance to ending point
@@ -25,17 +25,16 @@ class Grid {
   }
 }
 
-const board = [];
+let board = [];
 let temp = [];
+
+const wallamount = 3000;
+const gridamount = 100;
 function createGrid(x) {
   for (var rows = 0; rows < x; rows++) {
     for (var columns = 0; columns < x; columns++) {
       const grid = new Grid(columns, rows);
       temp.push(grid);
-      // $("#container").append(grid.div);
-      // var gridDiv = document.createElement("div");
-      // gridDiv.id = [rows, columns];
-      // gridDiv.className = "grid";
       $("#container").append(grid.gridDiv);
     }
     board.push(temp);
@@ -51,7 +50,6 @@ function clearGrid() {
 }
 
 function isTraversable(coordinate) {
-  console.log(coordinate);
   let grid;
   try {
     grid = board[coordinate[0]][coordinate[1]];
@@ -64,12 +62,10 @@ function isTraversable(coordinate) {
   }
 
   if (grid.wall === true) {
-    console.log("######################################");
     return false;
   }
 
   if (grid.checked === true) {
-    console.log("%%%%%%%%%%%%%%%%%%%%%");
     return false;
   }
 
@@ -81,8 +77,7 @@ function fillBlock(block, color) {
   var element = document.getElementById(block);
   $(element).css("background-color", color);
 }
-// Function that prompts the user to select the number of boxes in a new grid
-// the function then also creates that new grid
+
 function refreshGrid() {
   var z = prompt("How many boxes per side?");
   clearGrid();
@@ -90,36 +85,17 @@ function refreshGrid() {
 }
 
 function generateWall(num) {
-  console.log(num);
   for (i = 0; i < num; ++i) {
-    console.log("hit");
-    const x = Math.floor(Math.random() * 15);
-    const y = Math.floor(Math.random() * 15);
-    console.log(x);
-    console.log(y);
+    const x = Math.floor(Math.random() * (gridamount - 1)) + 1;
+    const y = Math.floor(Math.random() * (gridamount - 1)) + 1;
     fillBlock([x, y], "black");
   }
-  // fillBlock([10, 7], "black");
-  // fillBlock([10, 8], "black");
-  // fillBlock([10, 9], "black");
-  // fillBlock([10, 10], "black");
-  // fillBlock([10, 11], "black");
-  // fillBlock([10, 12], "black");
-  // fillBlock([10, 13], "black");
-}
-
-function getDistance(start, end) {
-  const x1 = start.x;
-  const y1 = start.y;
-  const x2 = end.x;
-  const y2 = end.y;
 }
 
 function getBestNode(list) {
   // list of grid
   let min = list[0];
   let index = 0;
-  // console.log(list);
   for (let i = 0; i < list.length; ++i) {
     let grid = list[i];
     if (grid.f <= min.f && grid.g <= min.g) {
@@ -135,13 +111,26 @@ function getH(current, end) {
   //compare their x to determine which direction to go diagonally,
 }
 
+function resetBoard() {
+  for (let row of board) {
+    for (let grid of row) {
+      //grid.fillColor("white");
+      grid.parent = null;
+      grid.checked = false;
+
+      if (!grid.wall) {
+        grid.fillColor("white");
+      }
+    }
+  }
+}
+
 function colorPath(current) {
-  let grid = current;
+  let grid = current.parent;
   while (1) {
-    if (grid.parent === undefined) {
+    if (grid.parent === null) {
       break;
     }
-    console.log("fill");
     grid.fillColor("blue");
 
     grid = grid.parent;
@@ -155,16 +144,15 @@ function solve(start, end) {
   const closed = [];
 
   while (1) {
-    console.log("******new iteration********");
     if (open.length === 0) {
+      alert("No Path Found!");
+
       console.log("No Path Found");
       break;
     }
     let bestNode = getBestNode(open);
     let current = bestNode.min;
-    console.log("---current----");
-    console.log(current);
-    console.log("-----------");
+
     let index = bestNode.index;
     if (current.x === end.x && current.y === end.y) {
       console.log("PATH FOUND!");
@@ -186,8 +174,6 @@ function solve(start, end) {
       top.h = getH(top, end);
       top.f = top.g + top.h;
 
-      console.log("top");
-      console.log(top);
       open.push(top);
     }
 
@@ -202,8 +188,7 @@ function solve(start, end) {
       bot.h = getH(bot, end);
 
       bot.f = bot.g + bot.h;
-      console.log("bot");
-      console.log(bot);
+
       open.push(bot);
     }
 
@@ -218,8 +203,7 @@ function solve(start, end) {
       right.h = getH(right, end);
 
       right.f = right.h + right.g;
-      console.log("right");
-      console.log(right);
+
       open.push(right);
     }
 
@@ -235,8 +219,6 @@ function solve(start, end) {
 
       left.f = left.h + left.g;
 
-      console.log("left");
-      console.log(left);
       open.push(left);
     }
 
@@ -251,8 +233,7 @@ function solve(start, end) {
       topright.h = getH(topright, end);
 
       topright.f = topright.h + topright.g;
-      console.log("topright");
-      console.log(topright);
+
       open.push(topright);
     }
 
@@ -268,8 +249,6 @@ function solve(start, end) {
 
       topleft.f = topleft.h + topleft.g;
 
-      console.log("topleft");
-      console.log(topleft);
       open.push(topleft);
     }
 
@@ -284,8 +263,7 @@ function solve(start, end) {
       botleft.h = getH(botleft, end);
 
       botleft.f = botleft.h + botleft.g;
-      console.log("botleft");
-      console.log(botleft);
+
       open.push(botleft);
     }
 
@@ -300,43 +278,43 @@ function solve(start, end) {
       botright.h = getH(botright, end);
 
       botright.f = botright.h + botright.g;
-      console.log("botright");
-      console.log(botright);
+
       open.push(botright);
     }
-    console.log("***********************************");
   }
 }
 
 // Create a 16x16 grid when the page loads.
 // Creates a hover effect that changes the color of a square to black when the mouse passes over it, leaving a (pixel) trail through the grid
 // allows the click of a button to prompt the user to create a new grid
+let first = true;
+
 $(document).ready(function () {
-  createGrid(16);
-  generateWall(100);
-  //board[15][15].fillColor("green");
+  createGrid(gridamount);
+  generateWall(wallamount);
   board[0][0].fillColor("green");
+
   $(".grid").click(function () {
+    resetBoard();
     board[0][0].fillColor("green");
-    console.log("click");
+
     const element = $(this.id).selector;
     const arr = element.split(",");
-    console.log(arr);
-    const end = [Number(arr[0]), Number(arr[1])];
-    board[Number(arr[0])][Number(arr[1])].fillColor("green");
-    // console.log(end);
-    // var element = document.getElementById([0, 0]);
-    // board[0][0].wall = true;
-    // board[0][0].fillColor("green");
-    // $(element).css("background-color", "black");
-    solve(board[0][0], board[Number(arr[0])][Number(arr[1])]);
+
+    // ensure the wall is not clicked
+    if (!board[Number(arr[0])][Number(arr[1])].wall) {
+      board[Number(arr[0])][Number(arr[1])].fillColor("green");
+      solve(board[0][0], board[Number(arr[0])][Number(arr[1])]);
+    } else {
+      alert("You cannot set your end point to a wall!");
+    }
   });
 
   $(".newGrid").click(function () {
-    refreshGrid();
-
-    $(".grid").click(function () {
-      $(this).css("background-color", "black");
-    });
+    board = [];
+    createGrid(gridamount);
+    resetBoard();
+    generateWall(wallamount);
+    board[0][0].fillColor("green");
   });
 });
