@@ -303,8 +303,12 @@ $(document).ready(function () {
 
     // ensure the wall is not clicked
     if (!board[Number(arr[0])][Number(arr[1])].wall) {
+      let start = new Date();
+      console.log(start);
       board[Number(arr[0])][Number(arr[1])].fillColor("green");
       solve(board[0][0], board[Number(arr[0])][Number(arr[1])]);
+      let end = new Date() - start;
+      document.getElementById("elapsedTime").innerHTML = end.toString() + " ms";
     } else {
       alert("You cannot set your end point to a wall!");
     }
