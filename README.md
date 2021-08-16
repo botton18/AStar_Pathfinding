@@ -1,3 +1,3 @@
 # A* Path Finding Algorithm
-## The second largest heading
-###### The smallest heading
+## How to use
+Download the file and open `index.html`
