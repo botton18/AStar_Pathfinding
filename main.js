@@ -73,7 +73,7 @@ function isTraversable(coordinate) {
   }
 
   if (grid.checked === true) {
-    console.log("grid is successfully resolved");
+    console.log("grid check is successfully resolved");
 
     return false;
   }
@@ -111,10 +111,6 @@ function getBestNode(list) {
   for (let i = 0; i < list.length; ++i) {
     let grid = list[i];
 
-    if (showCalc) {
-      // grid.fillColor("yellow");
-    }
-
     if (grid.f <= min.f && grid.g <= min.g) {
       min = grid;
       index = i;
@@ -125,16 +121,13 @@ function getBestNode(list) {
 
 function getH(current, end) {
   return Math.pow(current.x - end.x, 2) + Math.pow(current.y - end.y, 2);
-  //compare their x to determine which direction to go diagonally,
 }
 
 function resetBoard() {
   for (let row of board) {
     for (let grid of row) {
-      //grid.fillColor("white");
       grid.parent = null;
       grid.checked = false;
-
       if (!grid.wall) {
         grid.fillColor("white");
       }
@@ -161,7 +154,6 @@ function solve(start, end) {
   const open = [start];
   const closed = [];
 
-  console.log("solving");
   let ch = 0;
   while (1) {
     if (open.length === 0) {
@@ -176,10 +168,7 @@ function solve(start, end) {
     let index = bestNode.index;
 
     if (current.checked) {
-      console.log("CURRENT IS ALREADY CHECKED%%%%%%%");
-      console.log(`index is ${index}`);
-
-      console.log(current);
+      // this means the node is duplicated in the open list
       open.splice(index, 1);
       continue;
     }
@@ -191,19 +180,13 @@ function solve(start, end) {
       break;
     }
     current.checked = true;
-    ch++;
-    console.log(`Checked ${ch}`);
+
     if (showCalc) {
-      // grid.fillColor("yellow");
       current.fillColor("red");
     }
 
-    board[current.x][current.y].checked = true;
-    console.log(`before splice ${open.length}`);
     open.splice(index, 1);
-    console.log(`after splice ${open.length}`);
 
-    console.log(`spliced ${index}`);
     //check top
     if (isTraversable([current.x, current.y + 1])) {
       let top = board[current.x][current.y + 1];
@@ -215,9 +198,6 @@ function solve(start, end) {
       top.h = getH(top, end);
       top.f = top.g + top.h;
 
-      if (top.checked) {
-        console.log("TOP IS ALREADY CHECKED!!");
-      }
       open.push(top);
     }
 
@@ -232,9 +212,7 @@ function solve(start, end) {
       bot.h = getH(bot, end);
 
       bot.f = bot.g + bot.h;
-      if (bot.checked) {
-        console.log("bot IS ALREADY CHECKED!!");
-      }
+
       open.push(bot);
     }
 
@@ -249,9 +227,7 @@ function solve(start, end) {
       right.h = getH(right, end);
 
       right.f = right.h + right.g;
-      if (right.checked) {
-        console.log("right IS ALREADY CHECKED!!");
-      }
+
       open.push(right);
     }
 
@@ -266,9 +242,7 @@ function solve(start, end) {
       left.h = getH(left, end);
 
       left.f = left.h + left.g;
-      if (left.checked) {
-        console.log("left IS ALREADY CHECKED!!");
-      }
+
       open.push(left);
     }
 
@@ -336,9 +310,6 @@ function solve(start, end) {
   }
 }
 
-// Create a 16x16 grid when the page loads.
-// Creates a hover effect that changes the color of a square to black when the mouse passes over it, leaving a (pixel) trail through the grid
-// allows the click of a button to prompt the user to create a new grid
 let first = true;
 let showCalc;
 let allowDiagonal;
@@ -353,7 +324,6 @@ $(document).ready(function () {
   }
 
   allowDiagonal = confirm("Allow diagonal pathing?");
-  // wallamount = prompt("How many walls in the grid");
   document.getElementById("gridamount").innerHTML = gridamount;
   document.getElementById("wallamount").innerHTML = wallamount;
   document.getElementById("showcalc").innerHTML = showCalc;
@@ -387,7 +357,6 @@ $(document).ready(function () {
     board = [];
     clearGrid();
     createGrid(gridamount);
-    // resetBoard();
     generateWall(wallamount);
     board[0][0].fillColor("green");
 
@@ -398,7 +367,6 @@ $(document).ready(function () {
       const element = $(this.id).selector;
       const arr = element.split(",");
 
-      // ensure the wall is not clicked
       if (!board[Number(arr[0])][Number(arr[1])].wall) {
         let start = new Date();
         console.log(start);
